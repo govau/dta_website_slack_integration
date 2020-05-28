@@ -43,7 +43,7 @@ function dta_website_slack_entity_update(Drupal\Core\Entity\EntityInterface $ent
 
        Drupal::service('slack.slack_service')
          ->sendMessage(implode("\n", $output),$webhook , $channel, $username);
-
+}
 
      break;
      case 'staging':
@@ -59,6 +59,4 @@ function dta_website_slack_entity_update(Drupal\Core\Entity\EntityInterface $ent
     else {
       drupal_set_message(t('Moderation state is now `Technical review`. This is a local environment.  A slack message has not been sent.'));
       }
-
-  }
 }
