@@ -5,7 +5,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Url;
 
 /**
-* Implements hook_entity_update() for comment entities.
+* Implements hook_entity_update().
 */
 
 function dta_website_slack_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
@@ -37,7 +37,7 @@ function dta_website_slack_entity_update(Drupal\Core\Entity\EntityInterface $ent
        $output[] = "$page_title is ready for review at $page_url";
        $output[] = "Jump in there now! ";
        $output[] = "With love, ";
-       $output[] = "Jump in there now! ";
+       $output[] = "dta.gov.au";
 
        drupal_set_message(t('Moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors.'));
 
