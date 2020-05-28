@@ -1,0 +1,16 @@
+{
+  "name": "govau/dta_website_slack_integration",
+  "type": "drupal-custom-module",
+  "description": "Integrates with the \"Slack\" module to send slack messages to dtagovau-authors channel.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://github.com/govau/dta_website_slack_integration",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Kiri Hoy",
+      "homepage": "https://github.com/KiriHoy",
+      "role": "Maintainer"
+    }
+  ]
+}

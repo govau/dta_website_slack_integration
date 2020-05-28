@@ -1,0 +1,4 @@
+name: DTA slack integration
+description: Integrates with the "Slack" module to send slack messages to dtagovau-authors channel.
+type: module
+core: 8.x

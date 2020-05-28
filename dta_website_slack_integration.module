@@ -1,0 +1,64 @@
+<?php
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+
+/**
+* Implements hook_entity_update() for comment entities.
+*/
+
+function dta_website_slack_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
+
+  if ($entity->getEntityTypeId() !== 'node') {
+      return;
+    }
+
+  if (isset($_ENV['ENVIRONMENT'])) {
+   switch ($_ENV['ENVIRONMENT']) {
+     case 'production':
+
+     $nid = $entity->id();
+     $page_title = $entity->title->value;
+     $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
+     $current_entity_lang=$entity->get('langcode')->value;
+     $translated_entity = $entity->getTranslation($current_entity_lang);
+     $mod_state =$translated_entity->get('moderation_state')->getString();
+
+   if ($mod_state === 'technical_review'){
+
+       $config = \Drupal::config('slack.settings');
+       $channel = $config->get('slack_channel');
+       $username = $config->get('slack_username');
+       $webhook = $config->get('slack_webhook_url');
+
+       $output = [];
+       $output[] = "Hi!";
+       $output[] = "$page_title is ready for review at $page_url";
+       $output[] = "Jump in there now! ";
+       $output[] = "With love, ";
+       $output[] = "Jump in there now! ";
+
+       drupal_set_message(t('Moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors.'));
+
+       Drupal::service('slack.slack_service')
+         ->sendMessage(implode("\n", $output),$webhook , $channel, $username);
+
+
+     break;
+     case 'staging':
+      drupal_set_message(t('Moderation state is now `Technical review`. This is a staging environment.  A slack message has not been sent.'));
+
+     break;
+     case 'test':
+      drupal_set_message(t('Moderation state is now `Technical review`. This is a staging environment.  A slack message has not been sent.'));
+
+     break;
+     }
+    }
+    else {
+      drupal_set_message(t('Moderation state is now `Technical review`. This is a local environment.  A slack message has not been sent.'));
+      }
+
+  }
+}
