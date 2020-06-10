@@ -19,7 +19,7 @@ function dta_website_slack_integration_entity_update(Drupal\Core\Entity\EntityIn
          case 'production':
            $nid = $entity->id();
            $page_title = $entity->title->value;
-           $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
+           $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString();
            // Getting latest moderation state of node
            $current_entity_lang=$entity->get('langcode')->value;
            $translated_entity = $entity->getTranslation($current_entity_lang);
@@ -100,7 +100,7 @@ function dta_website_slack_integration_entity_insert(Drupal\Core\Entity\EntityIn
                case 'production':
                  $nid = $entity->id();
                  $page_title = $entity->title->value;
-                 $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
+                 $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString();
                  // Getting latest moderation state of node
                  $current_entity_lang=$entity->get('langcode')->value;
                  $translated_entity = $entity->getTranslation($current_entity_lang);
