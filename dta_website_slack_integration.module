@@ -8,55 +8,160 @@ use Drupal\Core\Url;
 * Implements hook_entity_update().
 */
 
-function dta_website_slack_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
+function dta_website_slack_integration_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
 
   if ($entity->getEntityTypeId() !== 'node') {
       return;
     }
 
-  if (isset($_ENV['ENVIRONMENT'])) {
-   switch ($_ENV['ENVIRONMENT']) {
-     case 'production':
-
-     $nid = $entity->id();
-     $page_title = $entity->title->value;
-     $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
-     $current_entity_lang=$entity->get('langcode')->value;
-     $translated_entity = $entity->getTranslation($current_entity_lang);
-     $mod_state =$translated_entity->get('moderation_state')->getString();
-
-   if ($mod_state === 'technical_review'){
-
-       $config = \Drupal::config('slack.settings');
-       $channel = $config->get('slack_channel');
-       $username = $config->get('slack_username');
-       $webhook = $config->get('slack_webhook_url');
-
-       $output = [];
-       $output[] = "Hi!";
-       $output[] = "$page_title is ready for review at $page_url";
-       $output[] = "Jump in there now! ";
-       $output[] = "With love, ";
-       $output[] = "dta.gov.au";
-
-       drupal_set_message(t('Moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors.'));
-
-       Drupal::service('slack.slack_service')
-         ->sendMessage(implode("\n", $output),$webhook , $channel, $username);
-}
-
-     break;
-     case 'staging':
-      drupal_set_message(t('Moderation state is now `Technical review`. This is a staging environment.  A slack message has not been sent.'));
-
-     break;
-     case 'test':
-      drupal_set_message(t('Moderation state is now `Technical review`. This is a staging environment.  A slack message has not been sent.'));
-
-     break;
-     }
+    if(isset($_ENV['ENVIRONMENT'])) {
+       switch ($_ENV['ENVIRONMENT']) {
+         case 'production':
+           $nid = $entity->id();
+           $page_title = $entity->title->value;
+           $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
+           // Getting latest moderation state of node
+           $current_entity_lang=$entity->get('langcode')->value;
+           $translated_entity = $entity->getTranslation($current_entity_lang);
+           $mod_state =$translated_entity->get('moderation_state')->getString();
+           // Check if content moderation state is equal to 'technical_review'
+       if ($mod_state === 'technical_review'){
+           // Get Slack config
+           $config = \Drupal::config('slack.settings');
+           $channel = $config->get('slack_channel');
+           $username = $config->get('slack_username');
+           $webhook = $config->get('slack_webhook_url');
+           // Set Slack message text
+           $output = [];
+           $output[] = "Hi!";
+           $output[] = "$page_title is ready for review at $page_url";
+           $output[] = "Jump in there now! ";
+           $output[] = "With love, ";
+           $output[] = "Jump in there now! ";
+           // Show message on site
+           drupal_set_message(t('The moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors slack channel.'));
+           // Send message to Slack
+          Drupal::service('slack.slack_service')
+          ->sendMessage(implode("\n", $output),$webhook , $channel, $username);
     }
-    else {
-      drupal_set_message(t('Moderation state is now `Technical review`. This is a local environment.  A slack message has not been sent.'));
+
+           break;
+         case 'staging':
+         // Getting latest moderation state of node
+         $current_entity_lang=$entity->get('langcode')->value;
+         $translated_entity = $entity->getTranslation($current_entity_lang);
+         $mod_state =$translated_entity->get('moderation_state')->getString();
+
+         if ($mod_state === 'technical_review'){
+            // Show message on site
+             drupal_set_message(t('The moderation state is now `Technical review`. This is a staging environment. A slack message has not been sent to the #dtagovau_authors slack channel.'));
+           }
+
+           break;
+         case 'test':
+         // Getting latest moderation state of node
+         $current_entity_lang=$entity->get('langcode')->value;
+         $translated_entity = $entity->getTranslation($current_entity_lang);
+         $mod_state =$translated_entity->get('moderation_state')->getString();
+         // Check if content moderation state is equal to 'technical_review'
+         if ($mod_state === 'technical_review'){
+           // Show message on site
+             drupal_set_message(t('The moderation state is now `Technical review`. This is a test environment. A slack message has not been sent to the #dtagovau_authors slack channel.'));
+           }
+           break;
+         }
+        }
+        else {
+           // Getting latest moderation state of node
+          $current_entity_lang=$entity->get('langcode')->value;
+          $translated_entity = $entity->getTranslation($current_entity_lang);
+          $mod_state =$translated_entity->get('moderation_state')->getString();
+
+          // Check if content moderation state is equal to 'technical_review'
+          if ($mod_state === 'technical_review'){
+           // Show message on site
+           drupal_set_message(t("The moderation state is now `Technical review`. This is a local environment. A slack message has not been sent to the #dtagovau_authors slack channel."));
+         }
+        ;}
       }
-}
+
+/**
+* Implements hook_entity_insert().
+*/
+
+function dta_website_slack_integration_entity_insert(Drupal\Core\Entity\EntityInterface $entity) {
+
+        if ($entity->getEntityTypeId() !== 'node') {
+            return;
+          }
+
+          if(isset($_ENV['ENVIRONMENT'])) {
+             switch ($_ENV['ENVIRONMENT']) {
+               case 'production':
+                 $nid = $entity->id();
+                 $page_title = $entity->title->value;
+                 $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid])->toString();
+                 // Getting latest moderation state of node
+                 $current_entity_lang=$entity->get('langcode')->value;
+                 $translated_entity = $entity->getTranslation($current_entity_lang);
+                 $mod_state =$translated_entity->get('moderation_state')->getString();
+                 // Check if content moderation state is equal to 'technical_review'
+             if ($mod_state === 'technical_review'){
+                 // Get Slack config
+                 $config = \Drupal::config('slack.settings');
+                 $channel = $config->get('slack_channel');
+                 $username = $config->get('slack_username');
+                 $webhook = $config->get('slack_webhook_url');
+                 // Set Slack message text
+                 $output = [];
+                 $output[] = "Hi!";
+                 $output[] = "$page_title is ready for review at $page_url";
+                 $output[] = "Jump in there now! ";
+                 $output[] = "With love, ";
+                 $output[] = "Jump in there now! ";
+                 // Show message on site
+                 drupal_set_message(t('The moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors slack channel.'));
+                 // Send message to Slack
+                Drupal::service('slack.slack_service')
+                ->sendMessage(implode("\n", $output),$webhook , $channel, $username);
+          }
+
+                 break;
+               case 'staging':
+               // Getting latest moderation state of node
+               $current_entity_lang=$entity->get('langcode')->value;
+               $translated_entity = $entity->getTranslation($current_entity_lang);
+               $mod_state =$translated_entity->get('moderation_state')->getString();
+
+               if ($mod_state === 'technical_review'){
+                  // Show message on site
+                   drupal_set_message(t('The moderation state is now `Technical review`. This is a staging environment. A slack message has not been sent to the #dtagovau_authors slack channel.'));
+                 }
+
+                 break;
+               case 'test':
+               // Getting latest moderation state of node
+               $current_entity_lang=$entity->get('langcode')->value;
+               $translated_entity = $entity->getTranslation($current_entity_lang);
+               $mod_state =$translated_entity->get('moderation_state')->getString();
+               // Check if content moderation state is equal to 'technical_review'
+               if ($mod_state === 'technical_review'){
+                 // Show message on site
+                   drupal_set_message(t('The moderation state is now `Technical review`. This is a test environment. A slack message has not been sent to the #dtagovau_authors slack channel.'));
+                 }
+                 break;
+               }
+              }
+              else {
+                 // Getting latest moderation state of node
+                $current_entity_lang=$entity->get('langcode')->value;
+                $translated_entity = $entity->getTranslation($current_entity_lang);
+                $mod_state =$translated_entity->get('moderation_state')->getString();
+
+                // Check if content moderation state is equal to 'technical_review'
+                if ($mod_state === 'technical_review'){
+                 // Show message on site
+                 drupal_set_message(t("The moderation state is now `Technical review`. This is a local environment. A slack message has not been sent to the #dtagovau_authors slack channel."));
+               }
+              ;}
+            }
