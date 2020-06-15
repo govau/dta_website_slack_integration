@@ -47,9 +47,9 @@ function dta_website_slack_integration_entity_update(Drupal\Core\Entity\EntityIn
            $webhook = $config->get('slack_webhook_url');
            // Set Slack message text
            $output = [];
-           $output[] = "Hi!";
-           $output[] = "$page_title is ready for review at $page_url";
-           $output[] = "Jump in there now! ";
+           $output[] = "Hi! $page_title is ready for review";
+           $output[] = "at $page_url";
+           $output[] = "Jump in there now!";
            // Show message on site
            drupal_set_message(t('The moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors slack channel.'));
            // Send message to Slack
@@ -139,9 +139,9 @@ function dta_website_slack_integration_entity_insert(Drupal\Core\Entity\EntityIn
                  $webhook = $config->get('slack_webhook_url');
                  // Set Slack message text
                  $output = [];
-                 $output[] = "Hi!";
-                 $output[] = "$page_title is ready for review at $page_url";
-                 $output[] = "Jump in there now! ";
+                 $output[] = "Hi! $page_title is ready for review";
+                 $output[] = "at $page_url";
+                 $output[] = "Jump in there now!";
                  // Show message on site
                  drupal_set_message(t('The moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors slack channel.'));
                  // Send message to Slack
