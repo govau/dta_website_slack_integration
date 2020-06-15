@@ -17,14 +17,28 @@ function dta_website_slack_integration_entity_update(Drupal\Core\Entity\EntityIn
     if(isset($_ENV['ENVIRONMENT'])) {
        switch ($_ENV['ENVIRONMENT']) {
          case 'production':
-           $nid = $entity->id();
-           $page_title = $entity->title->value;
-           $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString();
-           // Getting latest moderation state of node
-           $current_entity_lang=$entity->get('langcode')->value;
-           $translated_entity = $entity->getTranslation($current_entity_lang);
-           $mod_state =$translated_entity->get('moderation_state')->getString();
-           // Check if content moderation state is equal to 'technical_review'
+         $nid = $entity->id();
+         $node = Node::load($nid);
+         $default_version_moderation = $node->moderation_state->value;
+         $page_title = $entity->title->value;
+         $full_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString();
+         $lastest_version_url = "$base_url/node/$nid/latest";
+
+         // Check if content moderation state is equal to 'technical_review'
+         $current_entity_lang=$entity->get('langcode')->value;
+         $translated_entity = $entity->getTranslation($current_entity_lang);
+         $mod_state =$translated_entity->get('moderation_state')->getString();
+
+
+      // Check if node has a default revision that is published
+      // this will set the page url
+       if ($default_version_moderation === 'published' ) {
+         $page_url = $lastest_version_url;
+       }
+       else{
+         $page_url = $full_url;
+       }
+
        if ($mod_state === 'technical_review'){
            // Get Slack config
            $config = \Drupal::config('slack.settings');
@@ -35,8 +49,6 @@ function dta_website_slack_integration_entity_update(Drupal\Core\Entity\EntityIn
            $output = [];
            $output[] = "Hi!";
            $output[] = "$page_title is ready for review at $page_url";
-           $output[] = "Jump in there now! ";
-           $output[] = "With love, ";
            $output[] = "Jump in there now! ";
            // Show message on site
            drupal_set_message(t('The moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors slack channel.'));
@@ -99,13 +111,26 @@ function dta_website_slack_integration_entity_insert(Drupal\Core\Entity\EntityIn
              switch ($_ENV['ENVIRONMENT']) {
                case 'production':
                  $nid = $entity->id();
+                 $node = Node::load($nid);
+                 $default_version_moderation = $node->moderation_state->value;
                  $page_title = $entity->title->value;
-                 $page_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString();
+                 $full_url = Url::fromRoute('entity.node.canonical', ['node' => $nid], ['absolute' => TRUE])->toString();
+                 $lastest_version_url = "$base_url/node/$nid/latest";
                  // Getting latest moderation state of node
                  $current_entity_lang=$entity->get('langcode')->value;
                  $translated_entity = $entity->getTranslation($current_entity_lang);
                  $mod_state =$translated_entity->get('moderation_state')->getString();
-                 // Check if content moderation state is equal to 'technical_review'
+
+                 // Check if node has a default revision that is published
+                 // this will set the page url to either
+                  if ($default_version_moderation === 'published' ) {
+                    $page_url = $lastest_version_url;
+                  }
+                  else{
+                    $page_url = $full_url;
+                  }
+
+            // Check if content moderation state is equal to 'technical_review'
              if ($mod_state === 'technical_review'){
                  // Get Slack config
                  $config = \Drupal::config('slack.settings');
@@ -116,8 +141,6 @@ function dta_website_slack_integration_entity_insert(Drupal\Core\Entity\EntityIn
                  $output = [];
                  $output[] = "Hi!";
                  $output[] = "$page_title is ready for review at $page_url";
-                 $output[] = "Jump in there now! ";
-                 $output[] = "With love, ";
                  $output[] = "Jump in there now! ";
                  // Show message on site
                  drupal_set_message(t('The moderation state is now `Technical review`. A slack message has been sent to the #dtagovau_authors slack channel.'));
