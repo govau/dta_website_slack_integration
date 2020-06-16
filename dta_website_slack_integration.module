@@ -10,6 +10,7 @@ use Drupal\Core\Url;
 
 function dta_website_slack_integration_entity_update(Drupal\Core\Entity\EntityInterface $entity) {
   global $base_url;
+
   if ($entity->getEntityTypeId() !== 'node') {
       return;
     }
@@ -102,7 +103,7 @@ function dta_website_slack_integration_entity_update(Drupal\Core\Entity\EntityIn
 */
 
 function dta_website_slack_integration_entity_insert(Drupal\Core\Entity\EntityInterface $entity) {
-global $base_url;
+  global $base_url;
         if ($entity->getEntityTypeId() !== 'node') {
             return;
           }
